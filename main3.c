@@ -15,7 +15,7 @@ Nathan Perez 100754066
 #define TOTAL_SCANNERS 1    // Total available scanners
 #define TOTAL_MODEMS 1      // Total available modems
 #define TOTAL_CDS 2         // Total available CD drives
-#define MAX_PROCESSES 1000 // Constraint, as stated in lab manual
+#define MAX_PROCESSES 100 // Constraint, as stated in lab manual, Changed to 100 for testing
 
 
 // Define all structures
@@ -426,6 +426,7 @@ void handleProcess(Process process) {
 
 void simulateProcessArrival(const Process processes[], int size) {
     for (int currentTime = 0; currentTime < MAX_PROCESSES; currentTime++) {
+        printf("New Tick %d\n",currentTime);
         for (int i = 0; i < size; i++) {
             if (processes[i].arrivalTime == currentTime) {
                 handleProcess(processes[i]);
