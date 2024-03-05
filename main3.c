@@ -98,6 +98,14 @@ void simulateProcessArrival(const Process processes[], int size);
 
 int main() {
     MemoryBlock* root = initializeMemory(TOTAL_MEMORY); // Initialize with 1KB for testing
+
+    // Initialize all queues
+    Node* RealTimeQueue = NULL;
+    Node* UserJobQueue = NULL;
+    Node* PrioOne = NULL;
+    Node* PrioTwo = NULL;
+    Node* PrioThree = NULL;
+    Node* Processor = NULL;
     
     // All the File stuff
     char filename[256]; // Buffer to hold the filename
@@ -109,16 +117,16 @@ int main() {
     printProcesses(processes, size); // comment this out before hand in
     // After this runs, there will be an array holding all of the process that were collected from the text file
 
-    simulateProcessArrival(processes, size);
+    simulateProcessArrival(processes, size); // This simulates the scheduler receiveing tasks at specific intervals of ticks
 
+    // Free all queues
+    freeList(&RealTimeQueue);
+    freeList(&UserJobQueue);
+    freeList(&PrioOne);
+    freeList(&PrioTwo);
+    freeList(&PrioThree);
+    freeList(&Processor);
 
-
-
-
-
-
-
-    
     return 0;
 }
 
@@ -329,6 +337,15 @@ void displayList(Node* head) {
     printf("NULL\n");
 }
 
+void freeList(Node** head) {
+    Node* temp;
+    while (*head != NULL) {
+        temp = *head;
+        *head = (*head)->next;
+        free(temp);
+    }
+}
+
 
 
 // End of Linked list fucntions
@@ -434,11 +451,6 @@ void simulateProcessArrival(const Process processes[], int size) {
         }
     }
 }
-
-
-
-
-
 
 
 // End of handling scheduling
