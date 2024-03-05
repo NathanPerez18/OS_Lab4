@@ -66,7 +66,9 @@ void getFilenameFromUser(char* filename, int max_length);
 void readProcesses(const char* filename, Process processes[], int *size);
 void insertInOrder(Process array[], Process newProcess, int *size);
 void printProcesses(const Process processes[], int size);
-void simulateProcessArrival(const Process processes[], int size);
+void simulateProcessArrival(const Process processes[], int size, Node** RealTimeQueue, Node** UserJobQueue, Node** PrioOne, Node** PrioTwo, Node** PrioThree);
+void freeList(Node** head);
+bool checkAndAllocateResources(Process process);
 
 
 
@@ -117,7 +119,7 @@ int main() {
     printProcesses(processes, size); // comment this out before hand in
     // After this runs, there will be an array holding all of the process that were collected from the text file
 
-    simulateProcessArrival(processes, size); // This simulates the scheduler receiveing tasks at specific intervals of ticks
+    simulateProcessArrival(processes, size, &RealTimeQueue, &UserJobQueue, &PrioOne, &PrioTwo, &PrioThree); // This simulates the scheduler receiveing tasks at specific intervals of ticks
 
     // Free all queues
     freeList(&RealTimeQueue);
@@ -131,7 +133,7 @@ int main() {
 }
 
 
-// End of the main
+// End of the main, it is small, but the entire scheduluer finishes its job before all queues are freed
 
 
 
@@ -435,18 +437,58 @@ void printProcesses(const Process processes[], int size) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Start of handling scheduling
-void handleProcess(Process process) {
-    // Placeholder for now. Implement the logic that should be executed for each matching process.
+void handleProcess(Process process, Node** RealTimeQueue, Node** UserJobQueue, Node** PrioOne, Node** PrioTwo, Node** PrioThree) {
     printf("Handling process with arrival time %d\n", process.arrivalTime);
+    
+    // Check the priority level of this new process
+    if (process.priority == 0) {
+        // Add this new process to RealTimeQueue
+        insertAtEnd(RealTimeQueue, process);
+    } else if (process.priority >= 1 && process.priority <= 3) {
+        // Add this process to UserJobQueue
+        insertAtEnd(UserJobQueue, process);
+        
+        // Check if the process has enough available resources to be run
+        if (checkAndAllocateResources(process)) {
+            // Resources are subtracted from the total resources in checkAndAllocateResources
+            // Add the process to the appropriate priority queue
+            switch (process.priority) {
+                case 1:
+                    insertAtEnd(PrioOne, process);
+                    break;
+                case 2:
+                    insertAtEnd(PrioTwo, process);
+                    break;
+                case 3:
+                    insertAtEnd(PrioThree, process);
+                    break;
+            }
+        }
+    }
 }
 
-void simulateProcessArrival(const Process processes[], int size) {
+void simulateProcessArrival(const Process processes[], int size, Node** RealTimeQueue, Node** UserJobQueue, Node** PrioOne, Node** PrioTwo, Node** PrioThree) {
     for (int currentTime = 0; currentTime < MAX_PROCESSES; currentTime++) {
         printf("New Tick %d\n",currentTime);
         for (int i = 0; i < size; i++) {
             if (processes[i].arrivalTime == currentTime) {
-                handleProcess(processes[i]);
+                handleProcess(processes[i], RealTimeQueue, UserJobQueue, PrioOne, PrioTwo, PrioThree);
+
             }
         }
     }
